@@ -5,63 +5,59 @@ import { MapContainer, GeoJSON, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "./MyMap.css";
 
-class MyMap extends React.Component {
-  state = { color: "#ffff00" };
-  color = "blue";
-  gridModuleStyle = {
-    fillColor: "yellow",
-    fillOpacity: 1,
-    color: "black",
-    dashArray: "1", // we get bordered dashes
+function MyMap() {
+  const [color, setColor] = React.useState({ fillColor: "#ffff00", fillOpacity: 0.25 });
+  const colorRef = React.useRef(color);
+
+  const colorChange = (event: any) => {
+    console.log("before:", color);
+    setColor({ fillColor: event.target.value, fillOpacity: 0.25 });
+    colorRef.current = { fillColor: event.target.value, fillOpacity: 0.25 };
+    console.log("after:", color);
   };
 
-  changeColor = (event: any) => {
-    event.target.setStyle({
-      color: "black",
-      fillColor: this.state.color,
-      fillOpacity: 1,
-      dashArray: "1",
-    });
+  const gridModuleStyle = {
+    color: "black",
+    fillOpacity: 0.25,
+    dashArray: "1", // we get bordered dashes
   };
-  private onGridModule(module: any, layer: any) {
-    //const moduleValue = module.properties.value;
-    //layer.bindPopup(moduleValue);
-    console.log(module.type);
+  const setStyleOnClick = (event: any, color: any) => {
+    event.target.setStyle(color);
+  }
+  
+  const onEachFeature = (module: any, layer: any) => {
     layer.options.fillOpacity = 0.25;
-    layer.on({ // mouseOver
-      click: this.changeColor,
+    layer.on({
+      click: (event: any) => setStyleOnClick(event, colorRef.current)
     });
   }
-  colorChange = (event: any) => {
-    this.setState({ color: event.target.value });
-  };
-  render() {
-    return (
-      <div>
-        <h1 style={{ textAlign: "center" }}>Edit the GeoJSON</h1>
-        <MapContainer
-          style={{ height: "80vh", width:"70vh",marginLeft: "20vh", }}
-          zoom={17}
-          center={[50.56862063790635, 9.79568103987568]}
-        >
-          <GeoJSON
-            style={this.gridModuleStyle}
-            data={(mapData as any).features}
-            onEachFeature={this.onGridModule.bind(this)}
-          />
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-        </MapContainer>
-        <input
-          type="color"
-          value={this.state.color}
-          onChange={this.colorChange}
+
+  return (
+    
+    <div>
+      <h1 style={{ textAlign: "center" }}>Edit the GeoJSON</h1>
+      <h2>{color.fillColor}</h2>
+      
+
+      <MapContainer
+        style={{ height: "80vh", width: "70vh", marginLeft: "20vh" }}
+        zoom={17}
+        center={[50.56862063790635, 9.79568103987568]}
+      >
+        <GeoJSON
+          style={gridModuleStyle}
+          data={(mapData as any).features}
+          onEachFeature={onEachFeature}
+          
         />
-      </div>
-    );
-  }
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+      </MapContainer>
+      <input type="color" value={color.fillColor} onChange={colorChange} />
+    </div>
+  );
 }
 
 export default MyMap;
