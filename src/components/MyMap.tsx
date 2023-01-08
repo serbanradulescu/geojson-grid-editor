@@ -1,5 +1,6 @@
 import * as React from "react";
 import mapData from "./../data/grid.json";
+import EditOptionsMenu from './EditOptionsMenu';
 
 import { MapContainer, GeoJSON, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -9,28 +10,27 @@ function MyMap() {
   const [color, setColor] = React.useState({ fillColor: "#ffff00", fillOpacity: 0.25 });
   const colorRef = React.useRef(color);
 
-  const colorChange = (event: any) => {
-    console.log("before:", color);
-    setColor({ fillColor: event.target.value, fillOpacity: 0.25 });
-    colorRef.current = { fillColor: event.target.value, fillOpacity: 0.25 };
-    console.log("after:", color);
+  const onColorChange = (color: string) => {
+    setColor({ fillColor: color, fillOpacity: 1 });
+    colorRef.current = { fillColor: color, fillOpacity: 1 };
   };
-
-  const gridModuleStyle = {
+  
+  const gridModuleStyle: L.PathOptions = {
     color: "black",
     fillOpacity: 0.25,
     dashArray: "1", // we get bordered dashes
   };
-  const setStyleOnClick = (event: any, color: any) => {
+  
+  const setStyleOnClick = (event: L.LeafletEvent, color: L.PathOptions) => {
     event.target.setStyle(color);
   }
   
-  const onEachFeature = (module: any, layer: any) => {
-    layer.options.fillOpacity = 0.25;
+  const onEachFeature = (_: any, layer: L.Layer) => {
     layer.on({
-      click: (event: any) => setStyleOnClick(event, colorRef.current)
+      click: (event: L.LeafletEvent) => setStyleOnClick(event, colorRef.current)
     });
   }
+  
 
   return (
     
@@ -55,7 +55,7 @@ function MyMap() {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
       </MapContainer>
-      <input type="color" value={color.fillColor} onChange={colorChange} />
+      <EditOptionsMenu color={color.fillColor} onColorChange={onColorChange} />
     </div>
   );
 }
