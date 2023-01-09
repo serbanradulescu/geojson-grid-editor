@@ -19,7 +19,7 @@ const EditOptionsMenu: React.FC<EditOptionsMenuProps> = ({ color, onColorChange 
     shades.push( <> <br/>
       <button
         key={i}
-        onClick={() => onColorChange(`hsl(260, 100%, ${100 - i * (100 / numShades)}%)`)}
+        onClick={() => onColorChange(`#ff${9999 - i * (9999 / numShades)}`)}
       >
         Treatment zone {i + 1}
       </button></>

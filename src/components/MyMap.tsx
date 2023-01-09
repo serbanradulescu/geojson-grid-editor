@@ -7,7 +7,7 @@ import "leaflet/dist/leaflet.css";
 import "./MyMap.css";
 
 function MyMap() {
-  const [color, setColor] = React.useState({ fillColor: "#ffff00", fillOpacity: 0.25 });
+  const [color, setColor] = React.useState({ fillColor: "", fillOpacity: 0.2 });
   const colorRef = React.useRef(color);
 
   const onColorChange = (color: string) => {
@@ -17,15 +17,17 @@ function MyMap() {
   
   const gridModuleStyle: L.PathOptions = {
     color: "black",
-    fillOpacity: 0.25,
+    //fillOpacity: colorRef.current.fillOpacity,
     dashArray: "1", // we get bordered dashes
   };
   
   const setStyleOnClick = (event: L.LeafletEvent, color: L.PathOptions) => {
+    if (color.fillColor === "") {alert("Please set up treatment zones")}
     event.target.setStyle(color);
   }
   
   const onEachFeature = (_: any, layer: L.Layer) => {
+
     layer.on({
       click: (event: L.LeafletEvent) => setStyleOnClick(event, colorRef.current)
     });
