@@ -55,7 +55,9 @@ function MyMap() {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
       </MapContainer>
+      <div className="left-center">
       <EditOptionsMenu color={color.fillColor} onColorChange={onColorChange} />
+      </div>
     </div>
   );
 }

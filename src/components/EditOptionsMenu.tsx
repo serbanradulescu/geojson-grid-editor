@@ -6,11 +6,39 @@ interface EditOptionsMenuProps {
 }
 
 const EditOptionsMenu: React.FC<EditOptionsMenuProps> = ({ color, onColorChange }) => {
+  const [numShades, setNumShades] = React.useState(0);
+
+  const handleRangeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNumShades(parseInt(event.target.value));
+  };
+  const [showRangeInput, setShowRangeInput] = React.useState(false);
+
+
+  const shades = [];
+  for (let i = 0; i < numShades; i++) {
+    shades.push( <> <br/>
+      <button
+        key={i}
+        onClick={() => onColorChange(`hsl(260, 100%, ${100 - i * (100 / numShades)}%)`)}
+      >
+        Treatment zone {i + 1}
+      </button></>
+    );
+  }
+
   return (
     <div>
-      <button onClick={() => onColorChange('red')}>Set to red</button>
-      <button onClick={() => onColorChange('green')}>Set to green</button>
-      <button onClick={() => onColorChange('blue')}>Set to blue</button>
+      {showRangeInput ? ( <>
+      <label>
+        Number of shades:
+        <input type="range" min={2} max={5} value={numShades} onChange={handleRangeChange} />
+      </label>
+      {shades}
+      </>
+      ) : (
+        <button onClick={() => setShowRangeInput(true)}>Create treatment zones</button>
+      )}
+      
     </div>
   );
 };
