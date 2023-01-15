@@ -1,12 +1,22 @@
 import * as React from "react";
-import mapData from "./../data/grid.json";
 import EditOptionsMenu from './EditOptionsMenu';
+import type { FeatureCollection, Geometry, GeoJsonProperties } from 'geojson';
+import EditControlFC from './EditControl';
+import "leaflet-draw/dist/leaflet.draw.css";
 
 import { MapContainer, GeoJSON, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "./MyMap.css";
+import {cutGeojson} from "../utils/geojsonUtils"
+import { Polygon } from "@turf/turf";
 
 function MyMap() {
+  const [geojson, setGeojson] = React.useState<FeatureCollection<Geometry, GeoJsonProperties>>({
+    type: 'FeatureCollection',
+    features: [
+    ],
+  });
+  const [showEditControl, setShowEditControl] = React.useState(true);
   const [color, setColor] = React.useState({ fillColor: "", fillOpacity: 0.2 });
   const colorRef = React.useRef(color);
 
@@ -17,7 +27,6 @@ function MyMap() {
   
   const gridModuleStyle: L.PathOptions = {
     color: "black",
-    //fillOpacity: colorRef.current.fillOpacity,
     dashArray: "1", // we get bordered dashes
   };
   
@@ -32,7 +41,19 @@ function MyMap() {
       click: (event: L.LeafletEvent) => setStyleOnClick(event, colorRef.current)
     });
   }
-  
+  function onSetButtonClick() {
+    
+    if (geojson.features.length !== 1 || geojson.features.every(feature => feature.geometry.type !== 'Polygon')) {
+      alert('Please draw one polygon (at least and maximum)');
+    } else {
+      
+      const grid = cutGeojson(geojson.features[0].geometry as Polygon,1/11_111)
+      console.log(geojson)
+      console.log(grid)
+      setGeojson(cutGeojson(geojson.features[0].geometry as Polygon,1/11_111) as FeatureCollection<Geometry, GeoJsonProperties>);
+      setShowEditControl(false);
+    }
+  }
 
   return (
     
@@ -42,23 +63,27 @@ function MyMap() {
       
 
       <MapContainer
-        style={{ height: "80vh", width: "70vh", marginLeft: "20vh" }}
+        style={{ height: "80vh", width: "70vh", marginLeft: "15vh", marginRight:"20vh" }}
         zoom={17}
         center={[50.56862063790635, 9.79568103987568]}
       >
+        { showEditControl ?
+        <EditControlFC geojson={geojson} setGeojson={setGeojson} />
+        :
         <GeoJSON
           style={gridModuleStyle}
-          data={(mapData as any).features}
+          data={(geojson as any).features}
           onEachFeature={onEachFeature}
-          
-        />
+       
+        /> }
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
       </MapContainer>
       <div className="left-center">
-      <EditOptionsMenu color={color.fillColor} onColorChange={onColorChange} />
+      {showEditControl && <button onClick={onSetButtonClick}>Set polygon</button>}
+      {!showEditControl && <EditOptionsMenu color={color.fillColor} onColorChange={onColorChange} />}
       </div>
     </div>
   );
