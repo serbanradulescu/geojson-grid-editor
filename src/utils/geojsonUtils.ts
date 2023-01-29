@@ -44,6 +44,7 @@ export function cutGeojson(polygon: Polygon, gridSize: number) {
           properties: {
             gridX: x,
             gridY: y,
+            rate: 0,
           },
           geometry: {
             type: "Polygon",
@@ -55,4 +56,14 @@ export function cutGeojson(polygon: Polygon, gridSize: number) {
     }
   }
   return featureCollection;
+}
+
+export function downloadGeoJSON(geojson:any) {
+  const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(geojson));
+  const downloadLink = document.createElement("a");
+  downloadLink.setAttribute("href", data);
+  downloadLink.setAttribute("download", "geojson.json");
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  downloadLink.remove();
 }

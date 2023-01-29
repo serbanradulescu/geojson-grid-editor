@@ -3,16 +3,21 @@ import UnitSelector from "./UnitSelector";
 
 interface EditOptionsMenuProps {
   color: string;
-  onColorChange: (color: string) => void;
+  rate: number;
+  onColorChange: (color: string, rate:number) => void;
 }
 
 const EditOptionsMenu: React.FC<EditOptionsMenuProps> = ({
   color,
+  rate,
   onColorChange,
 }) => {
   const [numInputValuesEl, setNumInputValuesEl] = React.useState(2);
   const [showRangeInput, setShowRangeInput] = React.useState(false);
+  const [showTreatmentZones, setShowTreatmentZones] = React.useState(false);
   const [unit, setUnit] = React.useState("kg/ha");
+  const [zoneValues, setZoneValues] = React.useState(Array(numInputValuesEl).fill(0));
+
 
   const handleRangeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNumInputValuesEl(parseInt(event.target.value));
@@ -22,7 +27,28 @@ const EditOptionsMenu: React.FC<EditOptionsMenuProps> = ({
   };
   const setTreatmentZones = () => {
     setShowRangeInput(false);
+    setShowTreatmentZones(true);
+
   };
+  const colors = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#00ffff"];
+  
+  const buttons = [];
+  for (let i = 0; i < numInputValuesEl; i++) {
+    buttons.push(
+      <div key={i}>
+        <button
+          style={{ backgroundColor: colors[i % colors.length] }}
+          onClick={() => onColorChange(colors[i % colors.length], rate = zoneValues[i])}
+        >
+          {`Zone ${i + 1}: ${zoneValues[i]} ${unit}`}
+        </button>
+        <br />
+      </div>
+    );
+  }
+  
+
+
   const inputValuesEl = [];
   for (let i = 0; i < numInputValuesEl; i++) {
     inputValuesEl.push(
@@ -35,6 +61,12 @@ const EditOptionsMenu: React.FC<EditOptionsMenuProps> = ({
             id={`treatmentZoneValue${i + 1}`}
             min={0}
             max={10_000}
+            onChange={(e) => {
+              const newZoneValues = [...zoneValues];
+              newZoneValues[i] = parseInt(e.target.value);
+              setZoneValues(newZoneValues);
+              console.log(zoneValues)
+            }}
           />
         </label>
         <br />
@@ -44,7 +76,10 @@ const EditOptionsMenu: React.FC<EditOptionsMenuProps> = ({
   const selectNumberOfZones = (
     <>
       <label>
+      <div>
         Number of zones:
+        </div>
+        <div>
         <input
           type="range"
           min={2}
@@ -52,6 +87,7 @@ const EditOptionsMenu: React.FC<EditOptionsMenuProps> = ({
           value={numInputValuesEl}
           onChange={handleRangeChange}
         />
+        </div>
       </label>
     </>
   );
@@ -66,9 +102,13 @@ const EditOptionsMenu: React.FC<EditOptionsMenuProps> = ({
           <button onClick={setTreatmentZones}>Set treatment zones</button>
         </>
       ) : (
+        <>
+        {showTreatmentZones && buttons}
+        {!showTreatmentZones && (
         <button onClick={() => setShowRangeInput(true)}>
           Create treatment zones
-        </button>
+        </button>)}
+        </>
       )}
     </div>
   );
