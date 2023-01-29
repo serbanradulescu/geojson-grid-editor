@@ -38,6 +38,7 @@ const EditOptionsMenu: React.FC<EditOptionsMenuProps> = ({
       <div key={i}>
         <button
           style={{ backgroundColor: colors[i % colors.length] }}
+          // eslint-disable-next-line no-loop-func
           onClick={() => onColorChange(colors[i % colors.length], rate = zoneValues[i])}
         >
           {`Zone ${i + 1}: ${zoneValues[i]} ${unit}`}
